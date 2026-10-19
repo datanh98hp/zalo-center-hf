@@ -1,0 +1,20 @@
+{
+  "name": "zalo-center",
+  "private": true,
+  "packageManager": "pnpm@10.8.0",
+  "scripts": {
+    "dev": "pnpm --parallel --filter @zalo-center/web --filter @zalo-center/api dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm --filter @zalo-center/api test",
+    "docker:up": "docker compose -f infra/docker-compose.yml --env-file infra/.env up -d",
+    "docker:down": "docker compose -f infra/docker-compose.yml --env-file infra/.env down",
+    "docker:logs": "docker compose -f infra/docker-compose.yml --env-file infra/.env logs -f"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "eslint": "^9.0.0",
+    "typescript-eslint": "^8.0.0"
+  }
+}
