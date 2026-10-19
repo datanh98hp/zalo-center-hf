@@ -12,7 +12,7 @@ export default function LoginPage() {
     try {
       const response = await fetch(`${API}/auth/login`, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({tenantId,email,password}) });
       const data = await response.json(); if (!response.ok) throw new Error(data.message ?? "Đăng nhập thất bại");
-      sessionStorage.setItem("zc_access_token", data.accessToken); sessionStorage.setItem("zc_user", JSON.stringify(data.user)); router.push("/inbox");
+      sessionStorage.setItem("zc_access_token", data.accessToken); sessionStorage.setItem("zc_user", JSON.stringify(data.user)); router.push("/");
     } catch (e) { setError(e instanceof Error ? e.message : "Không thể kết nối API"); } finally { setBusy(false); }
   }
   return <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-10"><div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">

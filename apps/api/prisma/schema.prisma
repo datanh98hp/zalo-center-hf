@@ -1,6 +1,5 @@
 generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -147,6 +146,7 @@ model Conversation {
   contactId      String
   contact        Contact      @relation(fields: [contactId], references: [id], onDelete: Cascade)
   integrationId  String
+  integration    Integration  @relation(fields: [integrationId], references: [id], onDelete: Cascade)
   externalId     String
   messages       Message[]
   outboundJobs   OutboundJob[]

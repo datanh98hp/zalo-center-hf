@@ -1,7 +1,21 @@
+"use client";
+
 import {
-  Activity, Bell, BookOpenText, ChevronDown, CircleHelp, Inbox, Link2,
+  Activity, Bell, BookOpenText, ChevronDown, CircleHelp, Inbox, Link2, LogOut,
   MessageCircle, Search, Settings2, ShieldCheck, Users, Zap
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import { apiFetch } from "@/lib/api";
+
+function subscribeToSession(callback: () => void) {
+  window.addEventListener("storage", callback);
+  return () => window.removeEventListener("storage", callback);
+}
+
+function hasSessionToken() {
+  return Boolean(window.sessionStorage.getItem("zc_access_token"));
+}
 
 const nav = [
   { label: "Hộp thư", icon: Inbox, active: true, href: "/" },
@@ -31,6 +45,33 @@ function Metric({ label, value, note }: { label: string; value: string; note: st
 }
 
 export default function Home() {
+  const router = useRouter();
+  const authenticated = useSyncExternalStore(subscribeToSession, hasSessionToken, () => false);
+  const [logoutError, setLogoutError] = useState("");
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  useEffect(() => {
+    if (!authenticated) router.replace("/login");
+  }, [authenticated, router]);
+
+  async function logout() {
+    setLoggingOut(true);
+    setLogoutError("");
+    try {
+      await apiFetch("/auth/logout", { method: "POST" });
+      sessionStorage.removeItem("zc_access_token");
+      sessionStorage.removeItem("zc_user");
+      router.replace("/login");
+    } catch (error) {
+      setLogoutError(error instanceof Error ? error.message : "Không thể đăng xuất");
+      setLoggingOut(false);
+    }
+  }
+
+  if (!authenticated) {
+    return <main className="flex min-h-screen items-center justify-center bg-slate-50 text-sm text-slate-500">Checking session…</main>;
+  }
+
   return <main className="min-h-screen md:flex">
     <aside className="flex w-full flex-col border-b border-slate-200 bg-white p-4 md:min-h-screen md:w-64 md:border-b-0 md:border-r md:p-5">
       <div className="flex items-center gap-3 px-2 py-2">
@@ -57,9 +98,13 @@ export default function Home() {
         <div><p className="text-sm text-slate-500">Thứ Hai, 19 tháng 10, 2026</p><h1 className="mt-1 text-2xl font-bold tracking-tight">Tổng quan vận hành</h1><p className="mt-1 text-sm text-slate-500">Theo dõi hội thoại và hiệu quả phân công khách hàng.</p></div>
         <div className="flex items-center gap-2">
           <button aria-label="Thông báo" className="rounded-xl border border-slate-200 bg-white p-2.5 text-slate-600"><Bell size={18}/></button>
-          <button className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2"><span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700">AD</span><span className="text-left"><span className="block text-sm font-medium">Quản trị viên</span><span className="block text-xs text-slate-500">Admin</span></span><ChevronDown size={15}/></button>
+          <span className="hidden text-sm font-medium sm:inline">Quản trị viên</span>
+          <button onClick={() => void logout()} disabled={loggingOut} className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 disabled:opacity-60">
+            <LogOut size={17}/><span>{loggingOut ? "Đang đăng xuất…" : "Đăng xuất"}</span>
+          </button>
         </div>
       </header>
+      {logoutError && <p role="alert" className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-700">{logoutError}</p>}
 
       <div className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <Metric label="Hội thoại đang mở" value="128" note="Tổng các nguồn"/>

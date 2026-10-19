@@ -22,7 +22,6 @@ COPY --from=build --chown=app:app /app/node_modules /app/node_modules
 COPY --from=build --chown=app:app /app/apps/api/node_modules ./node_modules
 COPY --from=build --chown=app:app /app/apps/api/dist ./dist
 COPY --from=build --chown=app:app /app/apps/api/prisma ./prisma
-COPY --from=build --chown=app:app /app/apps/api/package.json ./package.json
 USER app
 EXPOSE 4000
-CMD ["sh", "-c", "npx prisma migrate deploy --schema=./prisma/schema.prisma && node dist/main"]
+CMD ["sh", "-c", "./node_modules/.bin/prisma migrate deploy --schema ./prisma/schema.prisma && node dist/main"]

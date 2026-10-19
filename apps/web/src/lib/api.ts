@@ -10,7 +10,7 @@ export type Contact = {
 
 export function getToken(): string | null {
   if (typeof window === 'undefined') return null;
-  return window.localStorage.getItem('zc_access_token');
+  return window.sessionStorage.getItem('zc_access_token');
 }
 
 export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
