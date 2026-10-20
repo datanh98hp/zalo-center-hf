@@ -5,17 +5,8 @@ import {
   MessageCircle, Search, Settings2, ShieldCheck, Users, Zap
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/api";
-
-function subscribeToSession(callback: () => void) {
-  window.addEventListener("storage", callback);
-  return () => window.removeEventListener("storage", callback);
-}
-
-function hasSessionToken() {
-  return Boolean(window.sessionStorage.getItem("zc_access_token"));
-}
 
 const nav = [
   { label: "Hộp thư", icon: Inbox, active: true, href: "/" },
@@ -23,7 +14,7 @@ const nav = [
   { label: "Tin nhắn nhanh", icon: Zap, href: "/quick-replies" },
   { label: "Tài khoản Zalo", icon: Link2, href: "/integrations" },
   { label: "Nhân viên & phân quyền", icon: ShieldCheck, href: "/employees" },
-  { label: "Nhật ký hệ thống", icon: Activity, href: "/" },
+  { label: "Nhật ký hệ thống", icon: Activity, href: "/audit" },
 ];
 
 const conversations = [
@@ -46,13 +37,19 @@ function Metric({ label, value, note }: { label: string; value: string; note: st
 
 export default function Home() {
   const router = useRouter();
-  const authenticated = useSyncExternalStore(subscribeToSession, hasSessionToken, () => false);
+  const [authenticated, setAuthenticated] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
   const [logoutError, setLogoutError] = useState("");
   const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => {
-    if (!authenticated) router.replace("/login");
-  }, [authenticated, router]);
+    if (sessionStorage.getItem("zc_access_token")) {
+      setAuthenticated(true);
+    } else {
+      router.replace("/login");
+    }
+    setCheckingSession(false);
+  }, [router]);
 
   async function logout() {
     setLoggingOut(true);
@@ -68,7 +65,7 @@ export default function Home() {
     }
   }
 
-  if (!authenticated) {
+  if (checkingSession || !authenticated) {
     return <main className="flex min-h-screen items-center justify-center bg-slate-50 text-sm text-slate-500">Checking session…</main>;
   }
 
