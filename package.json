@@ -8,6 +8,8 @@
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm --filter @zalo-center/api test",
+    "docker:build": "docker compose -f infra/docker-compose.yml --env-file infra/.env build --no-cache",
+    "docker:prisma": "docker compose -f infra/docker-compose.yml --env-file infra/.env exec api sh -c \"./node_modules/.bin/prisma generate --schema ./prisma/schema.prisma && ./node_modules/.bin/prisma migrate deploy --schema ./prisma/schema.prisma\"",
     "docker:up": "docker compose -f infra/docker-compose.yml --env-file infra/.env up -d",
     "docker:down": "docker compose -f infra/docker-compose.yml --env-file infra/.env down",
     "docker:logs": "docker compose -f infra/docker-compose.yml --env-file infra/.env logs -f"

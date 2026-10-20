@@ -46,6 +46,8 @@ Requirements: Node.js 22+, pnpm 10+, Docker.
 ## VPS
 Read `docs/security-and-deployment.md`. Set `infra/.env` from the example, set `apps/api/.env`, put a TLS reverse proxy in front, and do not expose PostgreSQL/Redis publicly. The provided Compose file binds web/API ports to loopback.
 
+For Docker deployments, start the services with `pnpm docker:up`. To generate the Prisma client and apply pending migrations inside the running API container, run `pnpm docker:prisma`. The API container also applies migrations automatically at startup.
+
 This is a working engineering foundation, not a claim that all provider integrations are available. Verify current official Zalo OA permissions before production integration.
 
 ## v0.3 progress
